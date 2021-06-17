@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class ConwayGameTest {
 
-    val story = GameOfLifeStory()
+    private val story = GameOfLifeStory()
 
     @Test
     fun empty() {
