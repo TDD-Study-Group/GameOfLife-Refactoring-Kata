@@ -50,10 +50,13 @@ class ConwayGame(val width: Int, val height: Int) {
     }
 
     private fun setDeadAt(next: ByteArray, j: Int, i: Int) {
-        val pos = j * width + i
-        if (pos >= 0 && pos < size - 1) {
-            next[pos] = 0
+        if (isOnGrid(i,j)) {
+            next.setDead(j, i)
         }
+    }
+
+    private fun ByteArray.setDead(j: Int, i: Int) {
+        this[j * width + i] = 0
     }
 
     private fun setAliveAt(next: ByteArray, j: Int, i: Int) {
