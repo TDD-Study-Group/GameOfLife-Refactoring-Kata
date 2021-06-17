@@ -3,10 +3,25 @@ package org.sammancoaching
 
 class MyWorld(val width: Int, val height: Int) {
     fun replaceWith(nextGeneration: ByteArray) {
-        System.arraycopy(nextGeneration, 0, currentGeneration, 0, width * height)
+        System.arraycopy(nextGeneration, 0, generation, 0, width * height)
     }
 
-    var currentGeneration: ByteArray = ByteArray(width * height)
+    var generation: ByteArray = ByteArray(width * height)
+
+    fun setDead(x: Int, y: Int) {
+        if (isOnGrid(x,y)) {
+            generation[y * width + x] = 0
+        }
+    }
+
+    fun setAlive(x: Int, y: Int) {
+        if (isOnGrid(x,y)) {
+            generation[y * width + x] = 1
+        }
+    }
+
+    private fun isOnGrid(x: Int, y: Int): Boolean =
+        y * width + x >= 0 && y * width + x < width * height - 1
 
 }
 
@@ -38,7 +53,7 @@ class ConwayGame(val width: Int, val height: Int) {
 
     fun setAliveAt(i: Int, j: Int) {
         setAliveAt(1, currentGeneration, j, i)
-        setAliveAt(1, currentGenerationNEW.currentGeneration, j, i)
+        currentGenerationNEW.setAlive(i, j)
     }
 
     private fun setAliveAt(type: Int, next: ByteArray, j: Int, i: Int) {
