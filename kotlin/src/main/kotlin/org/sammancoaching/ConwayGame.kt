@@ -3,7 +3,7 @@ package org.sammancoaching
 class ConwayGame(val width : Int, val height : Int) {
 
     private val size = width * height
-    var data: ByteArray = ByteArray(size)
+    var currentGeneration: ByteArray = ByteArray(size)
 
     /**
      *
@@ -11,25 +11,21 @@ class ConwayGame(val width : Int, val height : Int) {
      *
      */
     fun iterate() {
-        // clone grid
-        val prev = ByteArray(size)
-        System.arraycopy(data, 0, prev, 0, size)
-
         // create next generation
         val nextGeneration = ByteArray(size)
         for (i in 0 until width) {
             for (j in 0 until height) {
-                val type = isAlive(i, j, prev)
+                val type = isAlive(i, j, currentGeneration)
                 setAliveAt(type, nextGeneration, j, i)
             }
         }
 
         // replace generatior
-        System.arraycopy(nextGeneration, 0, data, 0, size)
+        System.arraycopy(nextGeneration, 0, currentGeneration, 0, size)
     }
 
     fun setAliveAt(i: Int, j: Int) {
-        setAliveAt(1, data, j, i)
+        setAliveAt(1, currentGeneration, j, i)
     }
 
     private fun setAliveAt(type: Int, next: ByteArray, j: Int, i: Int) {
@@ -54,37 +50,44 @@ class ConwayGame(val width : Int, val height : Int) {
     }
 
     protected fun isAlive(x: Int, y: Int, d: ByteArray): Int {
-        var count = 0
+        // Count neighbours
         val pos1 = y * width + x
-        for (i in x - 1..x + 1) {
-            for (j in y - 1..y + 1) {
-                val pos = j * width + i
-                if (pos >= 0 && pos < size - 1 && pos != pos1) {
-                    val alive : Byte = 1
-                    if (d[pos] == alive) {
-                        count++
-                    }
-                }
-            }
-        }
+        val livingNeighbours = countLivingNeighbours(x, y, d)
 
         //dead
         val dead : Byte = 0
         if (d[pos1] == dead) {
-            if (count == 3) { //becomes alive.
+            if (livingNeighbours == 3) { //becomes alive.
                return 1
             } else return 0
             //still dead
         } else { //live
-            if (count < 2 || count > 3) { //Dies
+            if (livingNeighbours < 2 || livingNeighbours > 3) { //Dies
                return 0
             } else return 1
             //lives
         }
     }
 
+    private fun countLivingNeighbours(x: Int, y: Int, d: ByteArray): Int {
+        var livingNeighbours = 0
+        val pos1 = y * width + x
+        for (i in x - 1..x + 1) {
+            for (j in y - 1..y + 1) {
+                val pos = j * width + i
+                if (pos >= 0 && pos < size - 1 && pos != pos1) {
+                    val alive: Byte = 1
+                    if (d[pos] == alive) {
+                        livingNeighbours++
+                    }
+                }
+            }
+        }
+        return livingNeighbours
+    }
+
     fun data(): Grid {
-        return PrintableData(width, height, data)
+        return PrintableData(width, height, currentGeneration)
     }
 }
 
