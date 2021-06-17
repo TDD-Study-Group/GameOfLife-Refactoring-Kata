@@ -75,7 +75,7 @@ class ConwayGame(val width : Int, val height : Int) {
         var livingNeighbours = 0
         for (i in x - 1..x + 1) {
             for (j in y - 1..y + 1) {
-                if (j * width + i >= 0 && j * width + i < width * height - 1 && j * width + i != y * width + x) {
+                if (j * width + i >= 0 && j * width + i < width * height - 1 && !isSamePosition(i, j, x, y)) {
                     if (d.isCellAlive(i, j)) {
                         livingNeighbours++
                     }
@@ -84,6 +84,8 @@ class ConwayGame(val width : Int, val height : Int) {
         }
         return livingNeighbours
     }
+
+    private fun isSamePosition(i: Int, j: Int, x: Int, y: Int) = j == y && i == x
 
     fun data(): Grid {
         return PrintableData(width, height, currentGeneration)
