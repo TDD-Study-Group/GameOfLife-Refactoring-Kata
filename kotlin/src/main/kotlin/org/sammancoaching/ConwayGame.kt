@@ -38,6 +38,7 @@ class ConwayGame(val width: Int, val height: Int) {
 
     fun setAliveAt(i: Int, j: Int) {
         setAliveAt(1, currentGeneration, j, i)
+        setAliveAt(1, currentGenerationNEW.currentGeneration, j, i)
     }
 
     private fun setAliveAt(type: Int, next: ByteArray, j: Int, i: Int) {
