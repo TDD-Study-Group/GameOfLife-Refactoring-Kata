@@ -11,16 +11,21 @@ class ConwayGame(val width : Int, val height : Int) {
      *
      */
     fun iterate() {
+        // clone grid
         val prev = ByteArray(size)
         System.arraycopy(data, 0, prev, 0, size)
-        val next = ByteArray(size)
+
+        // create next generation
+        val nextGeneration = ByteArray(size)
         for (i in 0 until width) {
             for (j in 0 until height) {
                 val type = isAlive(i, j, prev)
-                setAliveAt(type, next, j, i)
+                setAliveAt(type, nextGeneration, j, i)
             }
         }
-        System.arraycopy(next, 0, data, 0, size)
+
+        // replace generatior
+        System.arraycopy(nextGeneration, 0, data, 0, size)
     }
 
     fun setAliveAt(i: Int, j: Int) {
