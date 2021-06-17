@@ -51,33 +51,32 @@ class ConwayGame(val width : Int, val height : Int) {
 
     protected fun isAlive(x: Int, y: Int, d: ByteArray): Int {
         // Count neighbours
-        val pos1 = y * width + x
         val livingNeighbours = countLivingNeighbours(x, y, d)
 
         //dead
-        val dead : Byte = 0
-        if (d[pos1] == dead) {
+        if (d.isCellDead(x, y)) {
             if (livingNeighbours == 3) { //becomes alive.
-               return 1
+                return 1
             } else return 0
             //still dead
         } else { //live
             if (livingNeighbours < 2 || livingNeighbours > 3) { //Dies
-               return 0
+                return 0
             } else return 1
             //lives
         }
     }
 
+    private fun ByteArray.isCellDead(x: Int, y: Int) = this[y * width + x] == 0.toByte()
+
+    private fun ByteArray.isCellAlive(x: Int, y: Int) = this[y * width + x] == 1.toByte()
+
     private fun countLivingNeighbours(x: Int, y: Int, d: ByteArray): Int {
         var livingNeighbours = 0
-        val pos1 = y * width + x
         for (i in x - 1..x + 1) {
             for (j in y - 1..y + 1) {
-                val pos = j * width + i
-                if (pos >= 0 && pos < size - 1 && pos != pos1) {
-                    val alive: Byte = 1
-                    if (d[pos] == alive) {
+                if (j * width + i >= 0 && j * width + i < width * height - 1 && j * width + i != y * width + x) {
+                    if (d.isCellAlive(i, j)) {
                         livingNeighbours++
                     }
                 }
