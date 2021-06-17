@@ -1,9 +1,12 @@
 package org.sammancoaching
 
-class ConwayGame(val width : Int, val height : Int) {
+
+class MyWorld(val width: Int, val height: Int)
+class ConwayGame(val width: Int, val height: Int) {
 
     private val size = width * height
     var currentGeneration: ByteArray = ByteArray(size)
+    var currentGenerationNEW = MyWorld(width, height)
 
     /**
      *
@@ -75,7 +78,7 @@ class ConwayGame(val width : Int, val height : Int) {
         var livingNeighbours = 0
         for (i in x - 1..x + 1) {
             for (j in y - 1..y + 1) {
-                if (j * width + i >= 0 && j * width + i < width * height - 1 && !isSamePosition(i, j, x, y)) {
+                if (isOnGrid(i, j) && !isSamePosition(i, j, x, y)) {
                     if (d.isCellAlive(i, j)) {
                         livingNeighbours++
                     }
@@ -84,6 +87,9 @@ class ConwayGame(val width : Int, val height : Int) {
         }
         return livingNeighbours
     }
+
+    private fun isOnGrid(x: Int, y: Int) =
+        y * width + x >= 0 && y * width + x < width * height - 1
 
     private fun isSamePosition(i: Int, j: Int, x: Int, y: Int) = j == y && i == x
 
@@ -103,7 +109,7 @@ class PrintableData(val width: Int, val height: Int, val data: ByteArray) : Grid
 
     override fun contentAt(x: Int, y: Int): String {
         val pos = y * width + x
-        val alive : Byte = 1
+        val alive: Byte = 1
         if (data[pos] == alive) {
             return "*"
         } else {
