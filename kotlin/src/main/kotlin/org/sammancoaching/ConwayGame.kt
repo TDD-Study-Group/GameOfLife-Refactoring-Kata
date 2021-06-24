@@ -21,8 +21,10 @@ class MyWorld(val width: Int, val height: Int) {
 
 class ConwayGame(val width: Int, val height: Int) {
 
+    private val livingCells = mutableSetOf<Coordinate>()
+
     private val size = width * height
-    var currentGeneration: ByteArray = ByteArray(size)
+    private var currentGeneration: ByteArray = ByteArray(size)
     var currentGenerationNEW = MyWorld(width, height)
 
     /**
