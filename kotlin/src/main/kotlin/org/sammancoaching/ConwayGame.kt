@@ -21,8 +21,6 @@ class MyWorld(val width: Int, val height: Int) {
 
 class ConwayGame(val width: Int, val height: Int) {
 
-    private val livingCells = mutableSetOf<Coordinate>()
-
     private val size = width * height
     private var currentGeneration: ByteArray = ByteArray(size)
     var currentGenerationNEW = MyWorld(width, height)
@@ -55,31 +53,13 @@ class ConwayGame(val width: Int, val height: Int) {
     }
 
     private fun setStateAt(state: Int, next: ByteArray, self: Coordinate) {
-        if (state > 0) {
-            setAliveAt(next, self)
-        } else {
-            setDeadAt(next, self)
-        }
-    }
-
-    private fun setAliveAt(next: ByteArray, self: Coordinate) {
         if (isOnGrid(self)) {
-            next.setAlive(self)
+            next.setStateAt(self, state.toByte())
         }
     }
 
-    private fun ByteArray.setAlive(self: Coordinate) {
-        this[self.y * width + self.x] = 1
-    }
-
-    private fun setDeadAt(next: ByteArray, self: Coordinate) {
-        if (isOnGrid(self)) {
-            next.setDead(self)
-        }
-    }
-
-    private fun ByteArray.setDead(self: Coordinate) {
-        this[self.y * width + self.x] = 0
+    private fun ByteArray.setStateAt(self: Coordinate, state: Byte) {
+        this[self.arrayIndex(width)] = state
     }
 
     protected fun isAliveInNextGeneration(d: ByteArray, self: Coordinate): Int {
@@ -98,9 +78,9 @@ class ConwayGame(val width: Int, val height: Int) {
         }
     }
 
-    private fun ByteArray.isCellDead(self: Coordinate) = this[self.y * width + self.x] == 0.toByte()
+    private fun ByteArray.isCellDead(self: Coordinate) = this[self.arrayIndex(width)] == 0.toByte()
 
-    private fun ByteArray.isCellAlive(self: Coordinate) = this[self.y * width + self.x] == 1.toByte()
+    private fun ByteArray.isCellAlive(self: Coordinate) = this[self.arrayIndex(width)] == 1.toByte()
 
     private fun ByteArray.countLivingNeighbours(self: Coordinate): Int {
         var livingNeighbours = 0
@@ -119,7 +99,9 @@ class ConwayGame(val width: Int, val height: Int) {
     }
 
     private fun isOnGrid(coordinate: Coordinate): Boolean =
-        coordinate.y * width + coordinate.x >= 0 && coordinate.y * width + coordinate.x < width * height - 1
+        coordinate.arrayIndex(width) >= 0 && coordinate.arrayIndex(width) < width * height - 1
+
+    private fun Coordinate.arrayIndex(width: Int) = y * width + x
 
     fun data(): Grid {
         return PrintableData(width, height, currentGeneration)
