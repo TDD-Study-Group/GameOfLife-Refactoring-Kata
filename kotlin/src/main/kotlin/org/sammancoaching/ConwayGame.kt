@@ -2,11 +2,11 @@ package org.sammancoaching
 
 
 class MyWorld(val width: Int, val height: Int) {
+    var generation: ByteArray = ByteArray(width * height)
+
     fun replaceWith(nextGeneration: ByteArray) {
         System.arraycopy(nextGeneration, 0, generation, 0, width * height)
     }
-
-    var generation: ByteArray = ByteArray(width * height)
 
     fun setAlive(self: Coordinate) {
         if (isOnGrid(self)) {
@@ -38,8 +38,8 @@ class ConwayGame(val width: Int, val height: Int) {
         for (x in 0 until width) {
             for (y in 0 until height) {
                 val self = Coordinate(x, y)
-                val type = isAlive(currentGeneration, self)
-                setAliveAt(type, nextGeneration, self)
+                val type = isAliveInNextGeneration(currentGeneration, self)
+                setStateAt(type, nextGeneration, self)
             }
         }
 
@@ -50,16 +50,26 @@ class ConwayGame(val width: Int, val height: Int) {
 
     fun setAliveAt(i: Int, j: Int) {
         val self = Coordinate(i, j)
-        setAliveAt(1, currentGeneration, self)
+        setStateAt(1, currentGeneration, self)
         currentGenerationNEW.setAlive(self)
     }
 
-    private fun setAliveAt(type: Int, next: ByteArray, self: Coordinate) {
-        if (type > 0) {
+    private fun setStateAt(state: Int, next: ByteArray, self: Coordinate) {
+        if (state > 0) {
             setAliveAt(next, self)
         } else {
             setDeadAt(next, self)
         }
+    }
+
+    private fun setAliveAt(next: ByteArray, self: Coordinate) {
+        if (isOnGrid(self)) {
+            next.setAlive(self)
+        }
+    }
+
+    private fun ByteArray.setAlive(self: Coordinate) {
+        this[self.y * width + self.x] = 1
     }
 
     private fun setDeadAt(next: ByteArray, self: Coordinate) {
@@ -72,14 +82,8 @@ class ConwayGame(val width: Int, val height: Int) {
         this[self.y * width + self.x] = 0
     }
 
-    private fun setAliveAt(next: ByteArray, self: Coordinate) {
-        val pos = self.y * width + self.x
-        if (pos >= 0 && pos < size - 1)
-            next[pos] = 1
-    }
-
-    protected fun isAlive(d: ByteArray, self: Coordinate): Int {
-        val livingNeighbours = countLivingNeighbours(d, self)
+    protected fun isAliveInNextGeneration(d: ByteArray, self: Coordinate): Int {
+        val livingNeighbours = d.countLivingNeighbours(self)
 
         if (d.isCellDead(self)) {
             if (livingNeighbours == 3) { //becomes alive.
@@ -98,14 +102,14 @@ class ConwayGame(val width: Int, val height: Int) {
 
     private fun ByteArray.isCellAlive(self: Coordinate) = this[self.y * width + self.x] == 1.toByte()
 
-    private fun countLivingNeighbours(d: ByteArray, self: Coordinate): Int {
+    private fun ByteArray.countLivingNeighbours(self: Coordinate): Int {
         var livingNeighbours = 0
         for (i in self.x - 1..self.x + 1) {
             for (j in self.y - 1..self.y + 1) {
                 val coordinate = Coordinate(i, j)
 
                 if (isOnGrid(coordinate) && coordinate != self) {
-                    if (d.isCellAlive(coordinate)) {
+                    if (isCellAlive(coordinate)) {
                         livingNeighbours++
                     }
                 }
