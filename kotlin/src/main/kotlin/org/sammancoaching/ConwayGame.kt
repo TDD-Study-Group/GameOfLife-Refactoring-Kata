@@ -8,20 +8,14 @@ class MyWorld(val width: Int, val height: Int) {
 
     var generation: ByteArray = ByteArray(width * height)
 
-    fun setDead(x: Int, y: Int) {
-        if (isOnGrid(x,y)) {
-            generation[y * width + x] = 0
+    fun setAlive(self: Coordinate) {
+        if (isOnGrid(self)) {
+            generation[self.y * width + self.x] = 1
         }
     }
 
-    fun setAlive(x: Int, y: Int) {
-        if (isOnGrid(x,y)) {
-            generation[y * width + x] = 1
-        }
-    }
-
-    private fun isOnGrid(x: Int, y: Int): Boolean =
-        y * width + x >= 0 && y * width + x < width * height - 1
+    private fun isOnGrid(self: Coordinate): Boolean =
+        self.y * width + self.x >= 0 && self.y * width + self.x < width * height - 1
 
 }
 
@@ -39,10 +33,11 @@ class ConwayGame(val width: Int, val height: Int) {
     fun iterate() {
         // create next generation
         val nextGeneration = ByteArray(size)
-        for (i in 0 until width) {
-            for (j in 0 until height) {
-                val type = isAlive(i, j, currentGeneration, Coordinate(i, j))
-                setAliveAt(type, nextGeneration, j, i)
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                val self = Coordinate(x, y)
+                val type = isAlive(currentGeneration, self)
+                setAliveAt(type, nextGeneration, self)
             }
         }
 
@@ -52,45 +47,44 @@ class ConwayGame(val width: Int, val height: Int) {
     }
 
     fun setAliveAt(i: Int, j: Int) {
-        setAliveAt(1, currentGeneration, j, i)
-        currentGenerationNEW.setAlive(i, j)
+        val self = Coordinate(i, j)
+        setAliveAt(1, currentGeneration, self)
+        currentGenerationNEW.setAlive(self)
     }
 
-    private fun setAliveAt(type: Int, next: ByteArray, j: Int, i: Int) {
+    private fun setAliveAt(type: Int, next: ByteArray, self: Coordinate) {
         if (type > 0) {
-            setAliveAt(next, j, i)
+            setAliveAt(next, self)
         } else {
-            setDeadAt(next, j, i)
+            setDeadAt(next, self)
         }
     }
 
-    private fun setDeadAt(next: ByteArray, j: Int, i: Int) {
-        if (isOnGrid(Coordinate(i, j))) {
-            next.setDead(j, i)
+    private fun setDeadAt(next: ByteArray, self: Coordinate) {
+        if (isOnGrid(self)) {
+            next.setDead(self)
         }
     }
 
-    private fun ByteArray.setDead(j: Int, i: Int) {
-        this[j * width + i] = 0
+    private fun ByteArray.setDead(self: Coordinate) {
+        this[self.y * width + self.x] = 0
     }
 
-    private fun setAliveAt(next: ByteArray, j: Int, i: Int) {
-        val pos = j * width + i
+    private fun setAliveAt(next: ByteArray, self: Coordinate) {
+        val pos = self.y * width + self.x
         if (pos >= 0 && pos < size - 1)
             next[pos] = 1
     }
 
-    protected fun isAlive(x: Int, y: Int, d: ByteArray, self: Coordinate): Int {
-        // Count neighbours
+    protected fun isAlive(d: ByteArray, self: Coordinate): Int {
         val livingNeighbours = countLivingNeighbours(d, self)
 
-        //dead
-        if (d.isCellDead(x, y, self)) {
+        if (d.isCellDead(self)) {
             if (livingNeighbours == 3) { //becomes alive.
                 return 1
             } else return 0
             //still dead
-        } else { //live
+        } else {
             if (livingNeighbours < 2 || livingNeighbours > 3) { //Dies
                 return 0
             } else return 1
@@ -98,7 +92,7 @@ class ConwayGame(val width: Int, val height: Int) {
         }
     }
 
-    private fun ByteArray.isCellDead(x: Int, y: Int, self: Coordinate) = this[self.y * width + self.x] == 0.toByte()
+    private fun ByteArray.isCellDead(self: Coordinate) = this[self.y * width + self.x] == 0.toByte()
 
     private fun ByteArray.isCellAlive(self: Coordinate) = this[self.y * width + self.x] == 1.toByte()
 
@@ -126,7 +120,7 @@ class ConwayGame(val width: Int, val height: Int) {
     }
 }
 
-data class Coordinate(val x: Int, val y:Int)
+data class Coordinate(val x: Int, val y: Int)
 
 class PrintableData(val width: Int, val height: Int, val data: ByteArray) : Grid {
     override fun width(): Int {
